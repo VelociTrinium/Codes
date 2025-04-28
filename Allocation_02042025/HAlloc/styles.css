@@ -1,0 +1,36 @@
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 60px;  /* Collapsed width */
+    height: 100vh;
+    background: #333;
+    color: white;
+    transition: width 0.3s;
+    overflow: hidden;
+}
+
+.sidebar.expanded {
+    width: 200px;  /* Expanded width */
+}
+
+.menu-item {
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.menu-item .icon {
+    font-size: 20px;
+    width: 40px;  /* Icon always visible */
+    text-align: center;
+}
+
+.menu-item .text {
+    display: none;  /* Hidden when collapsed */
+}
+
+.sidebar.expanded .menu-item .text {
+    display: inline;  /* Show when expanded */
+}

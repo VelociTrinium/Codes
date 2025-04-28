@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preferences</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 60px;
+            height: 100vh;
+            background: #333;
+            color: white;
+            transition: width 0.3s;
+            overflow: hidden;
+        }
+        .sidebar.expanded {
+            width: 200px;
+        }
+        .menu-icon {
+            padding: 15px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 20px;
+        }
+        .menu-icon:hover {
+            background: #444;
+        }
+        .menu-item {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            border-bottom: 1px solid #444;
+        }
+        .menu-item:hover {
+            background: #555;
+        }
+        .menu-item .icon {
+            font-size: 20px;
+            width: 40px;
+            text-align: center;
+        }
+        .menu-item .text {
+            display: none;
+        }
+        .sidebar.expanded .menu-item .text {
+            display: inline;
+        }
+
+        .content {
+            margin-left: 80px;
+            padding: 20px;
+        }
+
+        input,
+        select,
+        button {
+            margin: 10px 0;
+            padding: 8px;
+            width: 100%;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #444;
+            color: white;
+        }
+
+        .success-message {
+            color: green;
+            font-weight: bold;
+            display: none;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="menu-icon" onclick="toggleSidebar()">☰</div>
+
+        <div class="menu-item" onclick="navigateTo('rank')">
+            <span class="icon">📊</span> <span class="text">Know Your Rank</span>
+        </div>
+
+        <div class="menu-item" onclick="navigateTo('preferences')">
+            <span class="icon">🏠</span> <span class="text">Preferences</span>
+        </div>
+
+        <div class="menu-item" onclick="navigateTo('room_selection')">
+            <span class="icon">🏢</span> <span class="text">Room Selection</span>
+        </div>
+
+        <div class="menu-item" onclick="navigateTo('final_allocation')">
+            <span class="icon">💯</span> <span class="text">Final Allocation</span>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <h2>Hostel Room Preferences</h2>
+        <p><strong>Register Number:</strong> <span id="userReg">{{ reg_number }}</span></p>
+
+        <label for="block">Select Hostel Block:</label>
+        <select id="block">
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+            <option value="E">E</option>
+            <option value="F">F</option>
+            <option value="G">G</option>
+            <option value="H">H</option>
+            <option value="I">I</option>
+            <option value="J">J</option>
+            <option value="K">K</option>
+            <option value="L">L</option>
+            <option value="M">M</option>
+            <option value="N">N</option>
+            <option value="O">O</option>
+            <option value="P">P</option>
+            <option value="Q">Q</option>
+            <option value="R">R</option>
+            <option value="S">S</option>
+            <option value="T">T</option>
+        </select>
+
+        <label for="roomType">Select Room Type:</label>
+        <select id="roomType" onchange="updateRoommateFields()">
+            <option value="1_Bed_ac">1 Bed AC</option>
+            <option value="1_Bed_nac">1 Bed Non-AC</option>
+            <option value="2_Bed_ac">2 Bed AC</option>
+            <option value="2_Bed_nac">2 Bed Non-AC</option>
+            <option value="3_Bed_ac">3 Bed AC</option>
+            <option value="3_Bed_nac">3 Bed Non-AC</option>
+            <option value="4_Bed_ac">4 Bed AC</option>
+            <option value="4_Bed_nac">4 Bed Non-AC</option>
+            <option value="6_Bed_ac">6 Bed AC</option>
+            <option value="6_Bed_nac">6 Bed Non-AC</option>
+            <option value="8_Bed_ac">8 Bed AC</option>
+            <option value="8_Bed_nac">8 Bed Non-AC</option>
+        </select>
+
+        <div id="roommatesContainer"></div>
+
+        <button onclick="addPreference()">Add Preference</button>
+
+        <p class="success-message" id="successMessage">Preferences submitted successfully!</p>
+
+        <h3>Preferences Added</h3>
+        <table id="preferencesTable">
+            <thead>
+                <tr>
+                    <th>Preference No.</th>
+                    <th>Block</th>
+                    <th>Room Type</th>
+                    <th>Roommates</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        let studentIds = [];
+        let selectedRoommates = new Set();
+        // let userReg = sessionStorage.getItem("userReg");
+
+        // if (!userReg) {
+        //     window.location.href = "/login/"; // Redirect if not logged in
+        // }
+
+        // document.getElementById("userReg").textContent = userReg;
+
+        async function fetchStudentIds() {
+            try {
+                // const response = await fetch('students.json');
+                const response = await fetch('/api/preferences/students.json');
+
+
+
+                const data = await response.json();
+                studentIds = Object.keys(data).filter(id => id !== userReg);
+            } catch (error) {
+                console.error("Error fetching student IDs:", error);
+            }
+        }
+
+        function updateRoommateFields() {
+            let roomType = document.getElementById("roomType").value;
+            let roommatesContainer = document.getElementById("roommatesContainer");
+            roommatesContainer.innerHTML = "";
+            selectedRoommates.clear();
+
+            let totalBeds = parseInt(roomType.charAt(0));
+            let neededRoommates = totalBeds - 1;
+
+            for (let i = 1; i <= neededRoommates; i++) {
+                let label = document.createElement("label");
+                label.textContent = `Roommate ${i} Register Number:`;
+
+                let select = document.createElement("select");
+                select.id = `roommate${i}`;
+                select.onchange = updateAvailableOptions;
+
+                let defaultOption = document.createElement("option");
+                defaultOption.value = "";
+                defaultOption.textContent = "Select Roommate";
+                select.appendChild(defaultOption);
+
+                studentIds.forEach(id => {
+                    let option = document.createElement("option");
+                    option.value = id;
+                    option.textContent = id;
+                    select.appendChild(option);
+                });
+
+                roommatesContainer.appendChild(label);
+                roommatesContainer.appendChild(select);
+            }
+        }
+
+        function updateAvailableOptions() {
+            selectedRoommates.clear();
+            document.querySelectorAll("#roommatesContainer select").forEach(select => {
+                if (select.value) selectedRoommates.add(select.value);
+            });
+
+            document.querySelectorAll("#roommatesContainer select").forEach(select => {
+                Array.from(select.options).forEach(option => {
+                    if (option.value) {
+                        option.disabled = selectedRoommates.has(option.value) && option.value !== select.value;
+                    }
+                });
+            });
+        }
+
+        // function addPreference() {
+        //     let block = document.getElementById("block").value;
+        //     let roomType = document.getElementById("roomType").value;
+        //     let roommates = [];
+
+        //     document.querySelectorAll("#roommatesContainer select").forEach(select => {
+        //         if (select.value) roommates.push(select.value);
+        //     });
+
+        //     let table = document.getElementById("preferencesTable").querySelector("tbody");
+        //     let row = table.insertRow();
+        //     row.insertCell(0).textContent = table.rows.length;
+        //     row.insertCell(1).textContent = block;
+        //     row.insertCell(2).textContent = roomType;
+        //     row.insertCell(3).textContent = roommates.length > 0 ? roommates.join(", ") : "N/A";
+
+        //     document.getElementById("successMessage").style.display = "block";
+        // }
+
+        async function addPreference() {
+            let block = document.getElementById("block").value;
+            let roomType = document.getElementById("roomType").value;
+            let roommates = new Set(); // Using Set to store unique values
+
+            // Collect selected roommates from dropdowns
+            document.querySelectorAll("#roommatesContainer select").forEach(select => {
+                if (select.value) roommates.add(select.value);
+            });
+
+            // Get the current user's registration number from span
+            const userReg = document.getElementById("userReg").innerText.trim();
+            roommates.add(userReg); // Add user to roommates
+
+            // Convert Set back to an Array if needed
+            roommates = [...roommates];
+
+            console.log("Final roommates list --->", roommates);
+
+
+
+            let table = document.getElementById("preferencesTable").querySelector("tbody");
+            let row = table.insertRow();
+            row.insertCell(0).textContent = table.rows.length;
+            row.insertCell(1).textContent = block;
+            row.insertCell(2).textContent = roomType;
+            row.insertCell(3).textContent = roommates.length > 0 ? roommates.join(", ") : "N/A";
+
+            document.getElementById("successMessage").style.display = "block";
+            // Send data to the backend
+            const preferenceData = {
+                id: userReg,
+                preference_no: table.rows.length,
+                block: block,
+                room_type: roomType,
+                roommates: roommates
+            };
+            console.log("preferenceData--->", preferenceData)
+            try {
+                const response = await fetch('/api/save_preference/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(preferenceData)
+                });
+
+                if (response.ok) {
+                    console.log("Preference saved successfully!--->", response);
+                    console.log("Preference saved successfully!");
+                } else {
+                    console.error("Failed to save preference.");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        }
+
+
+        function toggleSidebar() {
+            document.getElementById("sidebar").classList.toggle("expanded");
+        }
+
+        // function navigateTo(url) {
+        //     window.location.href = url;
+        // }
+        function navigateTo(page) {
+            window.location.href = "/" + page;
+        }
+
+        fetchStudentIds();
+
+
+
+    </script>
+
+</body>
+
+</html>

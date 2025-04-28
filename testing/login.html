@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hostel Allotment - Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e7e7e7;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        .login-container {
+            background: white;
+            width: 350px;
+            margin: 100px auto;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.3);
+        }
+        h2 {
+            color: #000000;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #777;
+            font-size: 14px;
+        }
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #23bb46;
+            color: white;
+            padding: 12px;
+            border: none;
+            width: 100%;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #299f44;
+        }
+        .error {
+            color: red;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Hostel Allotment System</h2>
+        <p>Please log in with your Register Number and Password.</p>
+
+        <label for="registerNumber"><b>Registration Number:</b></label>
+        <input type="text" id="registerNumber" placeholder="E.g. 24BBS0001">
+        <div id="regError" class="error"></div>
+
+        <label for="password"><b>Password:</b></label>
+        <input type="password" id="password" placeholder="Enter Password">
+        <div id="passError" class="error"></div>
+
+        <button id="loginBtn">Login</button>
+    </div>
+
+    <script>
+        document.getElementById("loginBtn").addEventListener("click", function () {
+            let regNumber = document.getElementById("registerNumber").value.trim();
+            let password = document.getElementById("password").value.trim();
+            let regError = document.getElementById("regError");
+            let passError = document.getElementById("passError");
+
+            let regPattern = /^[0-9]{2}[A-Z]{3}[0-9]{4}$/;
+
+            // Clear previous errors
+            regError.textContent = "";
+            passError.textContent = "";
+
+            if (!regPattern.test(regNumber)) {
+                regError.textContent = "Invalid format! Example: 24BBS0001";
+                return;
+            }
+
+            if (password !== regNumber) {
+                passError.textContent = "Incorrect password! Password should match Register Number.";
+                return;
+            }
+
+            // Store register number and redirect to dashboard
+            sessionStorage.setItem("userReg", regNumber);
+            window.location.href = "dashboard.html";
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room Selection</title>
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        body { 
+            font-family: Arial, sans-serif; 
+            display: flex; 
+        }
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 60px;
+            height: 100vh;
+            background: #333;
+            color: white;
+            transition: width 0.3s;
+            overflow: hidden;
+        }
+        .sidebar.expanded {
+            width: 200px;
+        }
+        .menu-icon {
+            padding: 15px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 20px;
+        }
+        .menu-icon:hover {
+            background: #444;
+        }
+        .menu-item {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            border-bottom: 1px solid #444;
+        }
+        .menu-item:hover {
+            background: #555;
+        }
+        .menu-item .icon {
+            font-size: 20px;
+            width: 40px;
+            text-align: center;
+        }
+        .menu-item .text {
+            display: none;
+        }
+        .sidebar.expanded .menu-item .text {
+            display: inline;
+        }
+
+        .content { 
+            flex-grow: 1; 
+            padding: 20px; 
+            text-align: center; 
+        }
+        table { 
+            width: 90%; 
+            border-collapse: collapse; 
+            margin-top: 20px; 
+            margin-left: 100px;
+        }
+        th, td { 
+            border: 1px solid black; 
+            padding: 10px; 
+            text-align: center; 
+        }
+        .accepted { 
+            color: red; 
+            font-weight: bold; 
+        }
+        button { 
+            padding: 8px; 
+            margin: 5px; 
+            cursor: pointer; 
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar" id="sidebar">
+        <div class="menu-icon" onclick="toggleSidebar()">☰</div>
+        
+        <div class="menu-item" onclick="navigateTo('rank')">
+            <span class="icon">📊</span> <span class="text">Know Your Rank</span>
+        </div>
+        
+        <div class="menu-item" onclick="navigateTo('preferences')">
+            <span class="icon">🏠</span> <span class="text">Preferences</span>
+        </div>
+        
+        <div class="menu-item" onclick="navigateTo('room_selection')">
+            <span class="icon">🏢</span> <span class="text">Room Selection</span>
+        </div>
+
+        <!-- <div class="menu-item" onclick="navigateTo('final_allocation')">
+            <span class="icon">💯</span> <span class="text">Final Allocation</span>
+        </div> -->
+    </div>
+
+    <div class="content">
+        <h1>Room Selection Page</h1>
+        <p><strong>Register Number:</strong> <span id="regNumber">{{ reg_number }}</span></p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Serial No.</th>
+                    <th>Block</th>
+                    <th>Room Type</th>
+                    <th>Roommates</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="selectionTable"></tbody>
+        </table>
+    </div>
+
+    <script>
+        function toggleSidebar() { document.getElementById("sidebar").classList.toggle("expanded"); }
+        // function navigateTo(page) { window.location.href = page; }
+        function navigateTo(page) {
+            window.location.href = "/" + page;
+        }
+
+        // Get user registration number from session storage
+        // let regNumber = sessionStorage.getItem("userReg");
+
+        // if (!regNumber) {
+        //     window.location.href = "login.html"; // Redirect to login if userReg is not found
+        // }
+
+        // document.getElementById("regNumber").textContent = regNumber;
+
+        let roomChoices = [
+
+            // [1, 'S', '3_Bed_ac', ['24BBS0001', '24BBS0002', '24BBS0004']]
+            // [2, 'T', '4_Bed_ac', ['24BBS0001', '24BBS0002', '24BBS0004', '24BBS0006']]
+            // [3, 'D', '3_Bed_ac', ['24BBS0004', '24BBS0005', '24BBS0001']]
+            // [4, 'G', '3_Bed_ac', ['24BBS0010', '24BBS0007', '24BBS0001']]
+            // [5, 'A', '2_Bed_nac', ['24BBS0002', '24BBS0001']]
+            // [6, 'T', '4_Bed_ac', ['24BBS0006', '24BBS0005', '24BBS0009', '24BBS0001']]
+
+            [1, "S", "3_Bed_ac", ["24BBS0001", "24BBS0002", "24BBS0004"]],
+            [2, "T", "4_Bed_ac", ["24BBS0001", "24BBS0003", "24BBS0005", "24BBS0006"]],
+            [3, "D", "3_Bed_ac", ["24BBS0001", "24BBS0004", "24BBS0005"]]
+        ];
+
+        function loadRoomChoices() {
+            let table = document.getElementById("selectionTable");
+            table.innerHTML = "";
+            roomChoices.forEach((choice, index) => {
+                let row = `<tr id="row-${index}">
+                    <td>${choice[0]}</td>
+                    <td>${choice[1]}</td>
+                    <td>${choice[2]}</td>
+                    <td>${choice[3].join(", ")}</td>
+                    <td><button onclick="confirmChoice(${index})">Accept</button></td>
+                </tr>`;
+                table.innerHTML += row;
+            });
+        }
+
+        function confirmChoice(index) {
+            let choice = roomChoices[index];
+            let confirmSelection = confirm(`Are you sure you want to choose:\nBlock: ${choice[1]}\nRoom Type: ${choice[2]}\nRoommates: ${choice[3].join(", ")}`);
+
+            if (confirmSelection) {
+                // Remove all other choices
+                roomChoices = [choice];
+
+                // Reload table with only the accepted choice
+                loadRoomChoices();
+
+                // Show accepted status in red
+                document.getElementById(`selectionTable`).innerHTML = `
+                    <tr>
+                        <td>${choice[0]}</td>
+                        <td>${choice[1]}</td>
+                        <td>${choice[2]}</td>
+                        <td>${choice[3].join(", ")}</td>
+                        <td><span class="accepted">Accepted</span></td>
+                    </tr>
+                `;
+
+                alert(`Room in Block ${choice[1]} selected successfully!`);
+            }
+        }
+
+        loadRoomChoices();
+    </script>
+
+</body>
+</html>

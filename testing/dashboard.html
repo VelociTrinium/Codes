@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+        }
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 60px;
+            height: 100vh;
+            background: #333;
+            color: white;
+            transition: width 0.3s;
+            overflow: hidden;
+        }
+        .sidebar.expanded {
+            width: 200px;
+        }
+        .menu-icon {
+            padding: 15px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 20px;
+        }
+        .menu-icon:hover {
+            background: #444;
+        }
+        .menu-item {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            border-bottom: 1px solid #444;
+        }
+        .menu-item:hover {
+            background: #555;
+        }
+        .menu-item .icon {
+            font-size: 20px;
+            width: 40px;
+            text-align: center;
+        }
+        .menu-item .text {
+            display: none;
+        }
+        .sidebar.expanded .menu-item .text {
+            display: inline;
+        }
+        .content {
+            flex-grow: 1;
+            padding: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar" id="sidebar">
+        <div class="menu-icon" onclick="toggleSidebar()">☰</div>
+
+        <div class="menu-item" onclick="navigateTo('rank.html')">
+            <span class="icon">📊</span> <span class="text">Know Your Rank</span>
+        </div>
+
+        <div class="menu-item" onclick="navigateTo('preferences.html')">
+            <span class="icon">🏠</span> <span class="text">Preferences</span>
+        </div>
+
+        <div class="menu-item" onclick="navigateTo('room_selection.html')">
+            <span class="icon">🏢</span> <span class="text">Room Selection</span>
+        </div>
+        
+        <div class="menu-item" onclick="navigateTo('final_allocation.html')">
+            <span class="icon">💯</span> <span class="text">Final Allocation</span>
+        </div>
+    </div>
+
+    <div class="content">
+        <h1>Welcome to the Hostel Allotment System</h1>
+        <p>◈</p>
+        <p>Select an option from the sidebar.</p>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById("sidebar").classList.toggle("expanded");
+        }
+
+        function navigateTo(page) {
+            window.location.href = page;
+        }
+    </script>
+
+</body>
+</html>
