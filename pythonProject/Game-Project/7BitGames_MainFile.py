@@ -13,7 +13,7 @@ import os
 
 def loading_bar():
     os.system('cls' if os.name == 'nt' else 'clear')
-    for _ in tqdm(range(10), mininterval=0.00001, ncols=100, desc="Starting...  "):        # NEW
+    for _ in tqdm(range(10), mininterval=0.00001, ncols=100, desc="Starting...  "):        # NEW        # NEW
         time.sleep(0.03)
 
 def show_menu():
